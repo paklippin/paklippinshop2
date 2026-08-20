@@ -1,0 +1,15 @@
+CREATE TABLE users (id TEXT PRIMARY KEY, email TEXT UNIQUE NOT NULL, full_name TEXT NOT NULL, phone TEXT, address TEXT, role TEXT NOT NULL DEFAULT "customer", password_hash TEXT NOT NULL, created_at TEXT NOT NULL);
+CREATE TABLE products (id TEXT PRIMARY KEY, name TEXT NOT NULL, description TEXT DEFAULT "", price REAL NOT NULL, image_url TEXT DEFAULT "", category TEXT DEFAULT "general", stock INTEGER DEFAULT 0, created_at TEXT NOT NULL);
+CREATE TABLE orders (id TEXT PRIMARY KEY, user_id TEXT, is_pos_order INTEGER DEFAULT 0, customer_name TEXT DEFAULT "", customer_phone TEXT DEFAULT "", shipping_address TEXT DEFAULT "", total REAL DEFAULT 0, status TEXT DEFAULT "pending", payment_method TEXT DEFAULT "cod", payment_status TEXT DEFAULT "unpaid", kyc_document_url TEXT, cod_surcharge REAL DEFAULT 0, delivery_fee REAL DEFAULT 0, govt_tax REAL DEFAULT 0, cod_delivery_paid INTEGER DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
+CREATE TABLE order_items (id TEXT PRIMARY KEY, order_id TEXT NOT NULL, product_id TEXT, product_name TEXT NOT NULL, quantity INTEGER NOT NULL, unit_price REAL NOT NULL, created_at TEXT NOT NULL);
+CREATE TABLE order_tracking (id TEXT PRIMARY KEY, order_id TEXT NOT NULL, status TEXT NOT NULL, note TEXT DEFAULT "", created_at TEXT NOT NULL);
+CREATE TABLE cart_items (id TEXT PRIMARY KEY, user_id TEXT NOT NULL, product_id TEXT NOT NULL, quantity INTEGER DEFAULT 1, created_at TEXT NOT NULL);
+INSERT INTO users VALUES ('admin-001','admin@paklippin.com','Admin','03000000000','Pakistan','admin','admin123',datetime('now'));
+INSERT INTO products VALUES ('p1','Kurta','Cotton',2999,'','men',50,datetime('now'));
+INSERT INTO products VALUES ('p2','Lawn Suit','Summer',4499,'','women',30,datetime('now'));
+INSERT INTO products VALUES ('p3','Pashmina','Cashmere',5999,'','women',20,datetime('now'));
+INSERT INTO products VALUES ('p4','Khussa','Leather',3499,'','men',40,datetime('now'));
+INSERT INTO products VALUES ('p5','Brass Vase','Brass',2499,'','home',25,datetime('now'));
+INSERT INTO products VALUES ('p6','Ajrak','Ajrak',1299,'','home',60,datetime('now'));
+INSERT INTO products VALUES ('p7','Rice','5kg',1899,'','grocery',100,datetime('now'));
+INSERT INTO products VALUES ('p8','Fruit','Dry',2499,'','grocery',35,datetime('now'));
