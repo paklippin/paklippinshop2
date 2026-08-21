@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { navigate } from './lib/router';
-import { products as productsApi, categories as categoriesApi } from './lib/api';
-import { useCart } from './lib/CartContext';
-import type { Product } from './lib/types';
-import { formatPKR } from './lib/types';
+import { navigate } from '../lib/router';
+import { products as productsApi, categories as categoriesApi } from '../lib/api';
+import { useCart } from '../lib/CartContext';
+import type { Product } from '../lib/types';
+import { formatPKR } from '../lib/types';
 import { ShoppingCart, Truck, Shield, RefreshCw } from 'lucide-react';
 
 export function HomePage() {

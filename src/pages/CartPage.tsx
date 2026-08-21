@@ -1,7 +1,7 @@
-import { navigate } from './lib/router';
-import { useCart } from './lib/CartContext';
-import { useAuth } from './lib/AuthContext';
-import { formatPKR } from './lib/types';
+import { navigate } from '../lib/router';
+import { useCart } from '../lib/CartContext';
+import { useAuth } from '../lib/AuthContext';
+import { formatPKR } from '../lib/types';
 import { ShoppingCart, Trash2, ArrowLeft } from 'lucide-react';
 
 export function CartPage() {
