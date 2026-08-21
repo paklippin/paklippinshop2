@@ -1,17 +1,17 @@
-import { useRoute, parseRoute } from '@/lib/router';
-import { AuthProvider } from '@/lib/AuthContext';
-import { CartProvider } from '@/lib/CartContext';
-import { Navbar } from '@/components/Navbar';
-import { Footer } from '@/components/Footer';
-import { HomePage } from '@/pages/HomePage';
-import { ShopPage } from '@/pages/ShopPage';
-import { AuthPage } from '@/pages/AuthPage';
-import { ProductDetailPage } from '@/pages/ProductDetailPage';
-import { CartPage } from '@/pages/CartPage';
-import { CheckoutPage } from '@/pages/CheckoutPage';
-import { OrdersPage } from '@/pages/OrdersPage';
-import { TrackOrderPage } from '@/pages/TrackOrderPage';
-import { AdminPage } from '@/pages/AdminPage';
+import { useRoute, parseRoute } from './lib/router';
+import { AuthProvider } from './lib/AuthContext';
+import { CartProvider } from './lib/CartContext';
+import { Navbar } from './components/Navbar';
+import { Footer } from './components/Footer';
+import { HomePage } from './pages/HomePage';
+import { ShopPage } from './pages/ShopPage';
+import { AuthPage } from './pages/AuthPage';
+import { ProductDetailPage } from './pages/ProductDetailPage';
+import { CartPage } from './pages/CartPage';
+import { CheckoutPage } from './pages/CheckoutPage';
+import { OrdersPage } from './pages/OrdersPage';
+import { TrackOrderPage } from './pages/TrackOrderPage';
+import { AdminPage } from './pages/AdminPage';
 
 function Router() {
   const route = useRoute();

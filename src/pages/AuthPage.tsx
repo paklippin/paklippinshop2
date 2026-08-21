@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { navigate } from '@/lib/router';
-import { useAuth } from '@/lib/AuthContext';
+import { navigate } from './lib/router';
+import { useAuth } from './lib/AuthContext';
 import { Mail, Lock, User as UserIcon, Phone, Loader2, AlertCircle, ShoppingBag } from 'lucide-react';
 
 interface AuthPageProps { mode: 'login' | 'signup'; }

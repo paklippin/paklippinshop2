@@ -1,4 +1,4 @@
-import { navigate } from '@/lib/router';
+import { navigate } from './lib/router';
 export function Footer() {
   return (
     <footer className="bg-gray-900 text-gray-300 mt-auto">

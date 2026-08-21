@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { navigate, useRoute } from '@/lib/router';
-import { products as productsApi } from '@/lib/api';
-import { useCart } from '@/lib/CartContext';
-import type { Product } from '@/lib/types';
-import { formatPKR } from '@/lib/types';
+import { navigate, useRoute } from './lib/router';
+import { products as productsApi } from './lib/api';
+import { useCart } from './lib/CartContext';
+import type { Product } from './lib/types';
+import { formatPKR } from './lib/types';
 import { ShoppingCart, ArrowLeft, Loader2, Minus, Plus } from 'lucide-react';
 
 export function ProductDetailPage() {

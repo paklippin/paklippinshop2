@@ -1,6 +1,6 @@
-import { navigate } from '@/lib/router';
-import { useAuth } from '@/lib/AuthContext';
-import { useCart } from '@/lib/CartContext';
+import { navigate } from './lib/router';
+import { useAuth } from './lib/AuthContext';
+import { useCart } from './lib/CartContext';
 import { ShoppingCart, Package, LogOut, User, Store } from 'lucide-react';
 
 export function Navbar() {
