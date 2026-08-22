@@ -1,61 +1,151 @@
-import { useEffect, useState } from 'react';
-import { navigate, useRoute } from '../lib/router';
-import { products as productsApi, categories as categoriesApi } from '../lib/api';
-import { useCart } from '../lib/CartContext';
-import type { Product } from '../lib/types';
-import { formatPKR } from '../lib/types';
-import { ShoppingCart, Search, Loader2 } from 'lucide-react';
+import { useEffect, useState, useMemo } from 'react';
+import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import type { Product } from '@/lib/types';
+import { ProductCard } from '@/components/ProductCard';
+import { useRoute } from '@/lib/router';
 
 export function ShopPage() {
   const route = useRoute();
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
-  const { addItem } = useCart();
-  useEffect(() => {
-    const params = new URLSearchParams(route.split('?')[1]);
-    const cat = params.get('category');
-    if (cat) setSelectedCategory(cat);
+  const [search, setSearch] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('newest');
+
+  // Parse category from hash query
+  const queryCategory = useMemo(() => {
+    const queryIdx = route.indexOf('?');
+    if (queryIdx === -1) return '';
+    const params = new URLSearchParams(route.slice(queryIdx + 1));
+    return params.get('category') || '';
   }, [route]);
+
+  useEffect(() => {
+    if (queryCategory) setSelectedCategory(queryCategory);
+  }, [queryCategory]);
+
   useEffect(() => {
     setLoading(true);
-    const cat = selectedCategory === 'all' ? undefined : selectedCategory;
-    productsApi.list(cat).then(data => { setProducts(data); setLoading(false); });
-    categoriesApi.list().then(setCategories);
-  }, [selectedCategory]);
-  const filtered = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
+    supabase
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: sortBy === 'newest' })
+      .then(({ data }) => {
+        setProducts((data as Product[]) || []);
+        setLoading(false);
+      });
+  }, [sortBy]);
+
+  const categories = useMemo(() => {
+    const cats = new Set(products.map((p) => p.category));
+    return ['all', ...Array.from(cats)];
+  }, [products]);
+
+  const filtered = useMemo(() => {
+    let result = products;
+    if (selectedCategory !== 'all') {
+      result = result.filter((p) => p.category === selectedCategory);
+    }
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q)
+      );
+    }
+    if (sortBy === 'price-low') {
+      result = [...result].sort((a, b) => a.price - b.price);
+    } else if (sortBy === 'price-high') {
+      result = [...result].sort((a, b) => b.price - a.price);
+    }
+    return result;
+  }, [products, selectedCategory, search, sortBy]);
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Shop</h1>
-      <div className="relative mb-4">
-        <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input type="text" placeholder="Search products..." value={search} onChange={e => setSearch(e.target.value)} className="input-field pl-10" />
+    <div className="mx-auto max-w-7xl px-4 py-8 animate-fade-in">
+      <h1 className="mb-6 text-3xl font-bold text-gray-900">Shop All Products</h1>
+
+      {/* Search + sort */}
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search
+            size={20}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="input-field pl-10"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              <X size={18} />
+            </button>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal size={18} className="text-gray-500" />
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 focus:border-brand-green-600 focus:outline-none focus:ring-2 focus:ring-brand-green-600/20"
+          >
+            <option value="newest">Newest First</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+          </select>
+        </div>
       </div>
-      <div className="flex flex-wrap gap-2 mb-6">
-        <button onClick={() => setSelectedCategory('all')} className={'px-4 py-2 rounded-lg text-sm font-medium ' + (selectedCategory === 'all' ? 'bg-brand-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200')}>All</button>
-        {categories.map(cat => <button key={cat} onClick={() => setSelectedCategory(cat)} className={'px-4 py-2 rounded-lg text-sm font-medium capitalize ' + (selectedCategory === cat ? 'bg-brand-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200')}>{cat}</button>)}
+
+      {/* Category filter */}
+      <div className="mb-8 flex flex-wrap gap-2">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
+              selectedCategory === cat
+                ? 'bg-brand-green-600 text-white shadow-sm'
+                : 'bg-white text-gray-600 ring-1 ring-gray-200 hover:bg-gray-50'
+            }`}
+          >
+            {cat === 'all' ? 'All Categories' : cat}
+          </button>
+        ))}
       </div>
-      {loading ? <div className="flex justify-center py-12"><Loader2 size={32} className="animate-spin text-brand-green-600" /></div>
-      : filtered.length === 0 ? <div className="text-center py-12 text-gray-500"><p className="text-lg">No products found</p></div>
-      : <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filtered.map(p => (
-            <div key={p.id} className="card overflow-hidden hover:shadow-md transition-shadow">
-              <div className="h-48 bg-gradient-to-br from-brand-green-50 to-brand-orange-50 flex items-center justify-center cursor-pointer" onClick={() => navigate('/product/'+p.id)}>
-                {p.image_url ? <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" /> : <span className="text-4xl">🛍️</span>}
-              </div>
-              <div className="p-4">
-                <span className="text-xs text-brand-green-600 font-medium uppercase">{p.category}</span>
-                <h3 className="font-semibold text-gray-900 mt-1 cursor-pointer hover:text-brand-green-600" onClick={() => navigate('/product/'+p.id)}>{p.name}</h3>
-                <div className="flex items-center justify-between mt-3">
-                  <span className="text-lg font-bold text-brand-green-700">{formatPKR(p.price)}</span>
-                  <button onClick={() => addItem(p.id, p.name, p.price, p.image_url, p.stock)} className="p-2 bg-brand-green-100 text-brand-green-700 rounded-lg hover:bg-brand-green-200"><ShoppingCart size={18} /></button>
-                </div>
-              </div>
-            </div>
+
+      {/* Results */}
+      {loading ? (
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="card h-72 animate-pulse bg-gray-100" />
           ))}
-        </div>}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <Search size={48} className="mb-4 text-gray-300" />
+          <p className="text-lg font-medium text-gray-500">No products found</p>
+          <p className="text-sm text-gray-400">Try a different search or category</p>
+        </div>
+      ) : (
+        <>
+          <p className="mb-4 text-sm text-gray-500">
+            {filtered.length} product{filtered.length !== 1 ? 's' : ''} found
+          </p>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {filtered.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
